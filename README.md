@@ -1,2 +1,2 @@
-# inverted_pendulum
+# inverted-pendulum
 Simulation of an inverted pendulum
