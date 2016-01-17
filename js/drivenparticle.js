@@ -1,13 +1,15 @@
 function DrivenParticle(x, y, freq, ampl) {
 	this.position = new Vec2(x, y);
+    this.velocity = new Vec2(0, 0);
     this.radius = 0.1;
     this.freq = freq;
     this.ampl = ampl;
     this.y_0 = y;
 }
 
-DrivenParticle.prototype.update = function(dt, t) {
+DrivenParticle.prototype.update = function(t) {
     this.position.y = this.y_0 + this.ampl * Math.cos(2 * Math.PI * this.freq * t);
+    this.velocity.y = -this.ampl * 2 * Math.PI * this.freq * Math.sin(2 * Math.PI * this.freq * t);
 };
 
 DrivenParticle.prototype.setFreq = function(freq) {

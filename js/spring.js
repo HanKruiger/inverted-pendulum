@@ -6,8 +6,29 @@ function Spring(p1, p2, k, l, damp) {
 	this.damp = damp;
 }
 
-Spring.prototype.update = function(dt, t) {
+Spring.prototype.exertForce = function() {
+    var dist = Vec2.sub(this.p2.position, this.p1.position).mag();
+    var unitVec = Vec2.setMag(Vec2.sub(this.p2.position, this.p1.position), 1);
 
+    // Hooke's law
+    var springForce = Vec2.setMag(unitVec, this.k * (dist - this.l))
+    if (this.p1 instanceof Particle) {
+        this.p1.addForce(springForce);
+    }
+    if (this.p2 instanceof Particle) {
+        this.p2.addForce(springForce.inv());
+    }
+
+    // Dampening based on relative velocity
+    var vRelative = Vec2.sub(this.p2.velocity, this.p1.velocity);
+    var dampeningForce = Vec2.mult(vRelative, this.damp);
+    
+    if (this.p1 instanceof Particle) {
+        this.p1.addForce(dampeningForce);
+    }
+    if (this.p2 instanceof Particle) {
+        this.p2.addForce(dampeningForce.inv());
+    }
 };
 
 Spring.prototype.setDamp = function(damp) {

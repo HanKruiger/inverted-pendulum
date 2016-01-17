@@ -5,12 +5,13 @@ function Simulation() {
 
 	this.t = 0.0;
 	this.dt = 0.001;
+	this.steps = 0;
 
 	var fps = 60;
     var me = this;
     /* Schedule the main loop to be called fps times per second, using the 
      * Simulation's this context. */
-    setInterval(function() { me.mainLoop.call(me); }, 1000 / fps);
+    this.mainLoop();
 }
 
 Simulation.prototype.initCanvas = function() {
@@ -27,9 +28,8 @@ Simulation.prototype.initCanvas = function() {
 		});
 
 		// Initialize camera to be centered on the world's origin
-	    this.camera = new Vec2(0.5 * this.ctx.canvas.width, 0.5 * this.ctx.canvas.height);
-	    this.zoom = 32;
-	    this.rotation = Math.PI;
+	    this.camera = new Vec2(0.5 * this.ctx.canvas.width, 0.7 * this.ctx.canvas.height);
+	    this.zoom = 56;
 	} else {
 		console.error('Canvas not supported by browser.');
 	}
@@ -41,12 +41,12 @@ Simulation.prototype.initPendulum = function() {
 	var lengthUpperLower = 0.8;
 	var p1 = new Particle(-0.5 * lengthUpperLower, 0, mass);
 	var p2 = new Particle(0.5 * lengthUpperLower, 0, mass);
-	var p3 = new Particle(-0.5 * lengthUpperLower, lengthSides, mass);
-	var p4 = new Particle(0.5 * lengthUpperLower, lengthSides, mass);
-	var p5 = new DrivenParticle(0, 0, 80, 0.1);
+	var p3 = new Particle(-0.2 * lengthUpperLower, lengthSides, mass);
+	var p4 = new Particle(0.8 * lengthUpperLower, lengthSides, mass);
+	var p5 = new DrivenParticle(0, 0, 130, 0.1);
 
-	var k = 100000;
-	var damp = 0.01;
+	var k = 1e5;
+	var damp = 0.1;
 	var s1 = new Spring(p1, p2, k, lengthUpperLower, damp);
 	var s2 = new Spring(p3, p4, k, lengthUpperLower, damp);
 	var s3 = new Spring(p1, p3, k, lengthSides, damp);
@@ -76,11 +76,14 @@ Simulation.prototype.initPendulum = function() {
 Simulation.prototype.mainLoop = function() {
 	this.update();
     this.draw();
+    var that = this;
+    setTimeout(function() { that.mainLoop.call(that); }, 1);
 };
 
 Simulation.prototype.update = function() {
 	this.pendulum.update(this.dt, this.t)
-	this.t += this.dt;
+	this.t = this.steps * this.dt;
+	this.steps++;
 };
 
 Simulation.prototype.draw = function() {
@@ -92,8 +95,12 @@ Simulation.prototype.draw = function() {
 
     // Translate to the center of the canvas.
     this.ctx.translate(this.camera.x, this.camera.y);
-    this.ctx.rotate(this.rotation);
+    
+    // Zoom in to see the pendulum.
     this.ctx.scale(this.zoom, this.zoom);
+    
+    // Mirror y-axis, so we have normal Cartesian coordinates.
+    this.ctx.scale(1, -1);
 
     // Draw the world
     this.pendulum.draw(this.ctx);
