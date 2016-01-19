@@ -65,32 +65,38 @@ Simulation.prototype.initParameters = function() {
 	this.parameters = [];
 	this.parameters.push(new Slider(
 		"Frequency", this.pendulum.dp.freq, 10, 500, 'left', this, function(freq) {
-			this.steps = 0.0
 			this.initPendulum();
 			this.pendulum.dp.freq = freq;
+			this.steps = 0.0
 			this.setDt();
 		}
 	));
 	this.parameters.push(new Slider(
 		"Amplitude", this.pendulum.dp.ampl, 0.0, 0.8, 'left', this, function(ampl) {
+			this.initPendulum();
 			this.pendulum.dp.ampl = ampl;
+			this.steps = 0.0
+			this.setDt();
 		}
 	));
 	this.parameters.push(new Slider(
 		"Dampening", this.pendulum.springs[0].damp, 0.0, 0.2, 'left', this, function(damp) {
+			this.initPendulum();
 			for (var i = 0; i < this.pendulum.springs.length; i++) {
 				this.pendulum.springs[i].damp = damp;
 			}
+			this.steps = 0.0
+			this.setDt();
 		}
 	));
 
 	this.parameters.push(new Slider(
 		"Spring constant", this.pendulum.springs[0].k, 1e4, 1e6, 'left', this, function(k) {
-			this.steps = 0.0
 			this.initPendulum();
 			for (var i = 0; i < this.pendulum.springs.length; i++) {
 				this.pendulum.springs[i].k = k;
 			}
+			this.steps = 0.0
 			this.setDt();
 		}
 	));
@@ -121,7 +127,6 @@ Simulation.prototype.setDt = function() {
  	var maxFreq = Math.max(...frequencies);
  	console.log(maxFreq);
  	this.dt = (1 / 20) * 1 / maxFreq;
- 	console.log('dt = ' + this.dt);
 }
 
 Simulation.prototype.step = function() {
@@ -157,6 +162,7 @@ Simulation.prototype.draw = function() {
     // Restore the canvas
     this.ctx.restore();
 
-    this.ctx.font = "48px sans";
-    this.ctx.fillText('t = ' + this.t.toFixed(2) + ' s', 10, 50);
+    this.ctx.font = "48px mono";
+    this.ctx.fillText('t  = ' + this.t.toFixed(2) + ' s', 10, 50);
+    this.ctx.fillText('dt = ' + this.dt.toExponential(2) + ' s', 10, 100);
 };

@@ -31,9 +31,6 @@ Spring.prototype.exertForces = function() {
 };
 
 Spring.prototype.getFrequency = function() {
-    // m1 = self.p1.mass
-    // m2 = self.p2.mass
-    // return np.sqrt(self.k * ((m1 + m2) / (2 * m1 * m2))) / (2.0 * np.pi)
     var m1 = this.p1.mass;
     var m2 = this.p2.mass;
     return Math.sqrt(this.k * ((m1 + m2) / (2 * m1 * m2))) / (2.0 * Math.PI);

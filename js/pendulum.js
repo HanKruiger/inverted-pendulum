@@ -36,14 +36,11 @@ Pendulum.prototype.updateAccelerations = function() {
 
 	for (i = 0; i < this.particles.length; i++) {
 		var p = this.particles[i];
-		p.force.y -= 981 * p.mass;
+		p.addGravity()
 		// Newton's law
-		p.acc.x = p.force.x / p.mass
-		p.acc.y = p.force.y / p.mass
-		// p.acc = Vec2.mult(p.force, p.mass);
+		p.acc = Vec2.mult(p.force, 1 / p.mass);
 		// Reset force to zero for next iteration.
-		p.force.x = 0;
-		p.force.y = 0;
+		p.force.mult(0);
 	}
 }
 
