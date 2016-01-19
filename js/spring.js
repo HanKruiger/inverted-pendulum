@@ -6,7 +6,7 @@ function Spring(p1, p2, k, l, damp) {
 	this.damp = damp;
 }
 
-Spring.prototype.exertForce = function() {
+Spring.prototype.exertForces = function() {
     var dist = Vec2.sub(this.p2.position, this.p1.position).mag();
     var unitVec = Vec2.setMag(Vec2.sub(this.p2.position, this.p1.position), 1);
 
@@ -16,27 +16,27 @@ Spring.prototype.exertForce = function() {
         this.p1.addForce(springForce);
     }
     if (this.p2 instanceof Particle) {
-        this.p2.addForce(springForce.inv());
+        this.p2.addForce(Vec2.mult(springForce, -1));
     }
 
     // Dampening based on relative velocity
     var vRelative = Vec2.sub(this.p2.velocity, this.p1.velocity);
     var dampeningForce = Vec2.mult(vRelative, this.damp);
-    
     if (this.p1 instanceof Particle) {
         this.p1.addForce(dampeningForce);
     }
     if (this.p2 instanceof Particle) {
-        this.p2.addForce(dampeningForce.inv());
+        this.p2.addForce(Vec2.mult(dampeningForce, -1));
     }
 };
 
-Spring.prototype.setDamp = function(damp) {
-    this.damp = damp;
-}
-
-Spring.prototype.getDamp = function() {
-    return this.damp;
+Spring.prototype.getFrequency = function() {
+    // m1 = self.p1.mass
+    // m2 = self.p2.mass
+    // return np.sqrt(self.k * ((m1 + m2) / (2 * m1 * m2))) / (2.0 * np.pi)
+    var m1 = this.p1.mass;
+    var m2 = this.p2.mass;
+    return Math.sqrt(this.k * ((m1 + m2) / (2 * m1 * m2))) / (2.0 * Math.PI);
 }
 
 Spring.prototype.draw = function(ctx) {

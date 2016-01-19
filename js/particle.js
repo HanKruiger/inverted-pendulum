@@ -14,7 +14,7 @@ Particle.prototype.addForce = function(force) {
 }
 
 Particle.prototype.addGravity = function() {
-    this.addForce(new Vec2(0, -981 * this.mass));
+    this.force.y -= 981 * this.mass;
 }
 
 Particle.prototype.draw = function(ctx) {

@@ -1,17 +1,11 @@
 function Simulation() {
 	this.initCanvas();
-	this.parameters = [];
 	this.initPendulum();
+	this.setDt();
+	this.initParameters();
 
 	this.t = 0.0;
-	this.dt = 0.001;
 	this.steps = 0;
-
-	var fps = 60;
-    var me = this;
-    /* Schedule the main loop to be called fps times per second, using the 
-     * Simulation's this context. */
-    this.mainLoop();
 }
 
 Simulation.prototype.initCanvas = function() {
@@ -41,9 +35,9 @@ Simulation.prototype.initPendulum = function() {
 	var lengthUpperLower = 0.8;
 	var p1 = new Particle(-0.5 * lengthUpperLower, 0, mass);
 	var p2 = new Particle(0.5 * lengthUpperLower, 0, mass);
-	var p3 = new Particle(-0.2 * lengthUpperLower, lengthSides, mass);
-	var p4 = new Particle(0.8 * lengthUpperLower, lengthSides, mass);
-	var p5 = new DrivenParticle(0, 0, 130, 0.1);
+	var p3 = new Particle(-0.4 * lengthUpperLower, lengthSides, mass);
+	var p4 = new Particle(0.6 * lengthUpperLower, lengthSides, mass);
+	var dp = new DrivenParticle(0, 0, 110, 0.3, mass);
 
 	var k = 1e5;
 	var damp = 0.1;
@@ -52,38 +46,93 @@ Simulation.prototype.initPendulum = function() {
 	var s3 = new Spring(p1, p3, k, lengthSides, damp);
 	var s4 = new Spring(p2, p4, k, lengthSides, damp);
 
-	restLengthMiddleDown = p1.position.dist(p5.position);
-	restLengthMiddleUp = p3.position.dist(p5.position);
+	var restLengthMiddleDown = p1.position.dist(dp.position);
+	var restLengthMiddleUp = p3.position.dist(dp.position);
 
-	var s5 = new Spring(p5, p1, k, restLengthMiddleDown, damp);
-	var s6 = new Spring(p5, p2, k, restLengthMiddleDown, damp);
-	var s7 = new Spring(p5, p3, k, restLengthMiddleUp, damp);
-	var s8 = new Spring(p5, p4, k, restLengthMiddleUp, damp);
+	var s5 = new Spring(dp, p1, k, restLengthMiddleDown, damp);
+	var s6 = new Spring(dp, p2, k, restLengthMiddleDown, damp);
+	var s7 = new Spring(dp, p3, k, restLengthMiddleUp, damp);
+	var s8 = new Spring(dp, p4, k, restLengthMiddleUp, damp);
 
-	this.parameters.push(new Slider(
-		"Frequency", p5.getFreq(), 30, 500, 'left', p5, p5.setFreq
-	));
-	this.parameters.push(new Slider(
-		"Amplitude", p5.getAmpl(), 0.0, 0.8, 'left', p5, p5.setAmpl
-	));
-
-	var particles = [p1, p2, p3, p4, p5];
+	var particles = [p1, p2, p3, p4];
 	var springs = [s1, s2, s3, s4, s5, s6, s7, s8];
 	var constraints = [];
-	this.pendulum = new Pendulum(particles, springs, constraints);
+
+	this.pendulum = new Pendulum(particles, dp, springs, constraints);
 };
 
-Simulation.prototype.mainLoop = function() {
+Simulation.prototype.initParameters = function() {
+	this.parameters = [];
+	this.parameters.push(new Slider(
+		"Frequency", this.pendulum.dp.freq, 10, 500, 'left', this, function(freq) {
+			this.steps = 0.0
+			this.initPendulum();
+			this.pendulum.dp.freq = freq;
+			this.setDt();
+		}
+	));
+	this.parameters.push(new Slider(
+		"Amplitude", this.pendulum.dp.ampl, 0.0, 0.8, 'left', this, function(ampl) {
+			this.pendulum.dp.ampl = ampl;
+		}
+	));
+	this.parameters.push(new Slider(
+		"Dampening", this.pendulum.springs[0].damp, 0.0, 0.2, 'left', this, function(damp) {
+			for (var i = 0; i < this.pendulum.springs.length; i++) {
+				this.pendulum.springs[i].damp = damp;
+			}
+		}
+	));
+
+	this.parameters.push(new Slider(
+		"Spring constant", this.pendulum.springs[0].k, 1e4, 1e6, 'left', this, function(k) {
+			this.steps = 0.0
+			this.initPendulum();
+			for (var i = 0; i < this.pendulum.springs.length; i++) {
+				this.pendulum.springs[i].k = k;
+			}
+			this.setDt();
+		}
+	));
+
+	this.parameters.push(new Button(
+		'Push pendulum', 'left', this, function() {
+			this.pendulum.particles[2].addForce(new Vec2(1500, 0));
+			this.pendulum.particles[3].addForce(new Vec2(1500, 0));
+		}
+	));
+
+	this.parameters.push(new Button(
+		'Reset', 'left', this, function() {
+			this.steps = 0.0
+			this.initPendulum();
+			this.setDt();
+		}
+	));
+};
+
+Simulation.prototype.setDt = function() {
+ 	var frequencies = [];
+ 	for (var i = 0; i < this.pendulum.springs.length; i++) {
+ 		frequencies.push(this.pendulum.springs[i].getFrequency());
+ 	}
+ 	frequencies.push(this.pendulum.dp.freq);
+
+ 	var maxFreq = Math.max(...frequencies);
+ 	console.log(maxFreq);
+ 	this.dt = (1 / 20) * 1 / maxFreq;
+ 	console.log('dt = ' + this.dt);
+}
+
+Simulation.prototype.step = function() {
 	this.update();
     this.draw();
-    var that = this;
-    setTimeout(function() { that.mainLoop.call(that); }, 1);
 };
 
 Simulation.prototype.update = function() {
 	this.pendulum.update(this.dt, this.t)
-	this.t = this.steps * this.dt;
 	this.steps++;
+	this.t = this.steps * this.dt;
 };
 
 Simulation.prototype.draw = function() {
@@ -107,4 +156,7 @@ Simulation.prototype.draw = function() {
     
     // Restore the canvas
     this.ctx.restore();
+
+    this.ctx.font = "48px sans";
+    this.ctx.fillText('t = ' + this.t.toFixed(2) + ' s', 10, 50);
 };

@@ -1,5 +1,6 @@
 body {
     background-color: rgb(235, 235, 235);
+    margin: 0;
     font-family: courier;
     font-size: 14px;
 }
@@ -13,8 +14,13 @@ canvas {
 }
 
 .parameter {
-    margin: 2px 30px;
+    margin: 25px 5px;
+    /*padding: 2px 30px;*/
     font-size: 15px;
+}
+
+button {
+    width: 100%;
 }
 
 ul {

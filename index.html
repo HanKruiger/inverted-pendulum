@@ -3,6 +3,7 @@
 <head>
     <script language="javascript" type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script language="javascript" type="text/javascript" src="js/slider.js"></script>
+    <script language="javascript" type="text/javascript" src="js/button.js"></script>
     <script language="javascript" type="text/javascript" src="js/vec2.js"></script>
     <script language="javascript" type="text/javascript" src="js/particle.js"></script>
     <script language="javascript" type="text/javascript" src="js/drivenparticle.js"></script>
@@ -11,8 +12,13 @@
     <script language="javascript" type="text/javascript" src="js/constraint.js"></script>
     <script language="javascript" type="text/javascript" src="js/simulation.js"></script>
     <script>
-    $(window).load(function() {
+    $(document).ready(function() {
         var simulation = new Simulation();
+        function loop() {
+            simulation.step();
+            setTimeout(loop, 0);
+        }
+        loop();
     });
     </script>
     <link rel="stylesheet" type="text/css" href="style.css">
