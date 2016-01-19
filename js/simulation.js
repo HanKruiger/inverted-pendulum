@@ -125,7 +125,6 @@ Simulation.prototype.setDt = function() {
  	frequencies.push(this.pendulum.dp.freq);
 
  	var maxFreq = Math.max(...frequencies);
- 	console.log(maxFreq);
  	this.dt = (1 / 20) * 1 / maxFreq;
 }
 
