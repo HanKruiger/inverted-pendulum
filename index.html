@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <script language="javascript" type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="js/slider.js"></script>
+    <script language="javascript" type="text/javascript" src="js/button.js"></script>
+    <script language="javascript" type="text/javascript" src="js/vec2.js"></script>
+    <script language="javascript" type="text/javascript" src="js/particle.js"></script>
+    <script language="javascript" type="text/javascript" src="js/drivenparticle.js"></script>
+    <script language="javascript" type="text/javascript" src="js/pendulum.js"></script>
+    <script language="javascript" type="text/javascript" src="js/spring.js"></script>
+    <script language="javascript" type="text/javascript" src="js/constraint.js"></script>
+    <script language="javascript" type="text/javascript" src="js/simulation.js"></script>
+    <script>
+    $(document).ready(function() {
+        var simulation = new Simulation();
+        function loop() {
+            simulation.step();
+            setTimeout(loop, 0);
+        }
+        loop();
+    });
+    </script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <span id="parameters_left"></span>
+        <span id="canvas_container">
+            <canvas id="the_canvas" height="720"></canvas>
+        </span>
+        <span id="parameters_right"></span>
+    </div>
+    <ul>
+        <li>Push the pendulum. Is it stable?</li>
+        <li>Pendulum resets if the parameters are changed with the sliders.</li>
+    </ul>
+</body>
+
+</html>
