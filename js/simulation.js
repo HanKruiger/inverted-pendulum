@@ -22,8 +22,8 @@ Simulation.prototype.initCanvas = function() {
 		});
 
 		// Initialize camera to be centered on the world's origin
-	    this.camera = new Vec2(0.5 * this.ctx.canvas.width, 0.7 * this.ctx.canvas.height);
-	    this.zoom = 56;
+	    this.camera = new Vec2(0.5 * this.ctx.canvas.width, 0.5 * this.ctx.canvas.height);
+	    this.zoom = 50;
 	} else {
 		console.error('Canvas not supported by browser.');
 	}
@@ -66,7 +66,7 @@ Simulation.prototype.initPendulum = function() {
 Simulation.prototype.initParameters = function() {
 	this.parameters = {
 		freq: new Slider(
-			"Frequency", 80, 10, 500, 'left', this, function(freq) {
+			"Frequency", 200, 10, 600, 'left', this, function(freq) {
 				this.initPendulum();
 				this.pendulum.dp.freq = freq;
 				this.steps = 0.0
@@ -74,7 +74,7 @@ Simulation.prototype.initParameters = function() {
 			}
 		),
 		ampl: new Slider(
-			"Amplitude", 0.1, 0.0, 0.8, 'left', this, function(ampl) {
+			"Amplitude", 0.1, 0.0, 0.5, 'left', this, function(ampl) {
 				this.initPendulum();
 				this.pendulum.dp.ampl = ampl;
 				this.steps = 0.0
@@ -82,7 +82,7 @@ Simulation.prototype.initParameters = function() {
 			}
 		),
 		damp: new Slider(
-			"Dampening", 0.01, 0.0, 0.2, 'left', this, function(damp) {
+			"Spring dampening", 0.01, 0.0, 0.2, 'left', this, function(damp) {
 				this.initPendulum();
 				for (var i = 0; i < this.pendulum.springs.length; i++) {
 					this.pendulum.springs[i].damp = damp;
@@ -92,7 +92,7 @@ Simulation.prototype.initParameters = function() {
 			}
 		),
 		k: new Slider(
-			"Spring constant", 1e5, 1e4, 1e6, 'left', this, function(k) {
+			"Spring constant", 5e5, 1e4, 1e6, 'left', this, function(k) {
 				this.initPendulum();
 				for (var i = 0; i < this.pendulum.springs.length; i++) {
 					this.pendulum.springs[i].k = k;
@@ -103,8 +103,8 @@ Simulation.prototype.initParameters = function() {
 		),
 		push: new Button(
 			'Push pendulum', 'left', this, function() {
-				this.pendulum.particles[2].addForce(new Vec2(1500, 0));
-				this.pendulum.particles[3].addForce(new Vec2(1500, 0));
+				this.pendulum.particles[2].addForce(new Vec2(2500, 0));
+				this.pendulum.particles[3].addForce(new Vec2(2500, 0));
 			}
 		),
 		reset: new Button(
