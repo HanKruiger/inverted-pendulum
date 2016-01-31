@@ -1,8 +1,8 @@
 function Simulation() {
 	this.initCanvas();
+	this.initParameters();
 	this.initPendulum();
 	this.setDt();
-	this.initParameters();
 
 	this.t = 0.0;
 	this.steps = 0;
@@ -33,14 +33,16 @@ Simulation.prototype.initPendulum = function() {
 	var mass = 0.02;
 	var lengthSides = 6.0;
 	var lengthUpperLower = 0.8;
+	var freq = this.parameters.freq.value();
+	var ampl = this.parameters.ampl.value();
 	var p1 = new Particle(-0.5 * lengthUpperLower, 0, mass);
 	var p2 = new Particle(0.5 * lengthUpperLower, 0, mass);
-	var p3 = new Particle(-0.4 * lengthUpperLower, lengthSides, mass);
-	var p4 = new Particle(0.6 * lengthUpperLower, lengthSides, mass);
-	var dp = new DrivenParticle(0, 0, 110, 0.3, mass);
+	var p3 = new Particle(-0.5 * lengthUpperLower, lengthSides, mass);
+	var p4 = new Particle(0.5 * lengthUpperLower, lengthSides, mass);
+	var dp = new DrivenParticle(0, 0, freq, ampl, mass);
 
-	var k = 1e5;
-	var damp = 0.1;
+	var k = this.parameters.k.value();
+	var damp = this.parameters.damp.value();
 	var s1 = new Spring(p1, p2, k, lengthUpperLower, damp);
 	var s2 = new Spring(p3, p4, k, lengthUpperLower, damp);
 	var s3 = new Spring(p1, p3, k, lengthSides, damp);
@@ -62,59 +64,57 @@ Simulation.prototype.initPendulum = function() {
 };
 
 Simulation.prototype.initParameters = function() {
-	this.parameters = [];
-	this.parameters.push(new Slider(
-		"Frequency", this.pendulum.dp.freq, 10, 500, 'left', this, function(freq) {
-			this.initPendulum();
-			this.pendulum.dp.freq = freq;
-			this.steps = 0.0
-			this.setDt();
-		}
-	));
-	this.parameters.push(new Slider(
-		"Amplitude", this.pendulum.dp.ampl, 0.0, 0.8, 'left', this, function(ampl) {
-			this.initPendulum();
-			this.pendulum.dp.ampl = ampl;
-			this.steps = 0.0
-			this.setDt();
-		}
-	));
-	this.parameters.push(new Slider(
-		"Dampening", this.pendulum.springs[0].damp, 0.0, 0.2, 'left', this, function(damp) {
-			this.initPendulum();
-			for (var i = 0; i < this.pendulum.springs.length; i++) {
-				this.pendulum.springs[i].damp = damp;
+	this.parameters = {
+		freq: new Slider(
+			"Frequency", 80, 10, 500, 'left', this, function(freq) {
+				this.initPendulum();
+				this.pendulum.dp.freq = freq;
+				this.steps = 0.0
+				this.setDt();
 			}
-			this.steps = 0.0
-			this.setDt();
-		}
-	));
-
-	this.parameters.push(new Slider(
-		"Spring constant", this.pendulum.springs[0].k, 1e4, 1e6, 'left', this, function(k) {
-			this.initPendulum();
-			for (var i = 0; i < this.pendulum.springs.length; i++) {
-				this.pendulum.springs[i].k = k;
+		),
+		ampl: new Slider(
+			"Amplitude", 0.1, 0.0, 0.8, 'left', this, function(ampl) {
+				this.initPendulum();
+				this.pendulum.dp.ampl = ampl;
+				this.steps = 0.0
+				this.setDt();
 			}
-			this.steps = 0.0
-			this.setDt();
-		}
-	));
-
-	this.parameters.push(new Button(
-		'Push pendulum', 'left', this, function() {
-			this.pendulum.particles[2].addForce(new Vec2(1500, 0));
-			this.pendulum.particles[3].addForce(new Vec2(1500, 0));
-		}
-	));
-
-	this.parameters.push(new Button(
-		'Reset', 'left', this, function() {
-			this.steps = 0.0
-			this.initPendulum();
-			this.setDt();
-		}
-	));
+		),
+		damp: new Slider(
+			"Dampening", 0.01, 0.0, 0.2, 'left', this, function(damp) {
+				this.initPendulum();
+				for (var i = 0; i < this.pendulum.springs.length; i++) {
+					this.pendulum.springs[i].damp = damp;
+				}
+				this.steps = 0.0
+				this.setDt();
+			}
+		),
+		k: new Slider(
+			"Spring constant", 1e5, 1e4, 1e6, 'left', this, function(k) {
+				this.initPendulum();
+				for (var i = 0; i < this.pendulum.springs.length; i++) {
+					this.pendulum.springs[i].k = k;
+				}
+				this.steps = 0.0
+				this.setDt();
+			}
+		),
+		push: new Button(
+			'Push pendulum', 'left', this, function() {
+				this.pendulum.particles[2].addForce(new Vec2(1500, 0));
+				this.pendulum.particles[3].addForce(new Vec2(1500, 0));
+			}
+		),
+		reset: new Button(
+			'Reset', 'left', this, function() {
+				this.steps = 0.0
+				this.initPendulum();
+				this.setDt();
+			}
+		)
+	};
 };
 
 Simulation.prototype.setDt = function() {
